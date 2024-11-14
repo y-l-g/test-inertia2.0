@@ -1,47 +1,18 @@
 services:
   app:
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8000:8000"
     build: .
     volumes:
       - ./:/app
       - app_data:/data
       - app_config:/config
-    command: ["php", "artisan", "octane:frankenphp", "--host=0.0.0.0"]
+    command: ["php", "artisan", "octane:start", "--watch"]
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
     tty: true
-  db:
-    image: "mysql:8.0"
-    volumes:
-      - mysql-data:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_USER: user
-  phpmyadmin:
-    image: phpmyadmin:latest
-    environment:
-      PMA_HOST: db
-      PMA_USER: user
-      PMA_PASSWORD: password
-  redis:
-    image: "redis:7.4"
-    volumes:
-      - "redis-data:/data"
-  horizon:
-    build: .
-    volumes:
-      - ./:/app
-      - horizon_data:/data
-      - horizon_config:/config
-    command: ["php", "artisan", "horizon"]
-  caddy:
-    image: caddy:2
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy-config:/config
-      - ./caddy-data:/data
   mailpit:
     image: axllent/mailpit
     volumes:
@@ -56,9 +27,3 @@ services:
 volumes:
   app_data:
   app_config:
-  caddy_data:
-  caddy_config:
-  mysql-data:
-  redis-data:
-  horizon_data:
-  horizon_config:

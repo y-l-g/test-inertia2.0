@@ -8,6 +8,7 @@ RUN set -eux; \
     nano \
     file \
     gettext \
+    nodejs \
     git \
     && apt-get -y autoremove \
     && apt-get clean \
@@ -37,3 +38,6 @@ RUN set -eux; \
     zip
 
 RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
+
+
+
