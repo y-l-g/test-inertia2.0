@@ -42,6 +42,17 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy-config:/config
       - ./caddy-data:/data
+  mailpit:
+    image: axllent/mailpit
+    volumes:
+      - ./mailpi_data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
 volumes:
   app_data:
   app_config:
