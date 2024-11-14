@@ -1,0 +1,7 @@
+app.localhost {
+    reverse_proxy app:8000
+}
+
+db.localhost {
+    reverse_proxy phpmyadmin
+}
