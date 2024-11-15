@@ -5,6 +5,7 @@ services:
       - "443:443"
       - "8000:8000"
     build: .
+    restart: always
     volumes:
       - ./:/app
       - app_data:/data
@@ -15,6 +16,7 @@ services:
     tty: true
   mailpit:
     image: axllent/mailpit
+    restart: always
     volumes:
       - ./mailpi_data:/data
     ports:

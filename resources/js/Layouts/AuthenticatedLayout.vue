@@ -34,6 +34,12 @@ console.log(usePage().props.auth.user)
                 >
                   Dashboard
                 </NavLink>
+                <NavLink
+                  :href="route('feature.index')"
+                  :active="route().current('feature.index')"
+                >
+                  Features
+                </NavLink>
               </div>
             </div>
 
@@ -142,6 +148,12 @@ console.log(usePage().props.auth.user)
             >
               Dashboard
             </ResponsiveNavLink>
+            <ResponsiveNavLink
+              :href="route('feature.index')"
+              :active="route().current('feature.index')"
+            >
+              Features
+            </ResponsiveNavLink>
           </div>
 
           <!-- Responsive Settings Options -->
@@ -182,9 +194,13 @@ console.log(usePage().props.auth.user)
       </header>
 
       <!-- Page Content -->
-      <main>
-        <slot />
-      </main>
+      <div class="py-12">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <main>
+            <slot />
+          </main>
+        </div>
+      </div>
     </div>
   </div>
 </template>
