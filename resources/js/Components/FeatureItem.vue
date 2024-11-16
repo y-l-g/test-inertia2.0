@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Feature } from '@/types';
+import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 defineProps<{
@@ -54,15 +55,27 @@ const toggleReadMore = () => {
         </button>
       </div>
       <div class="flex-1">
-        <h2 class="text-2xl mb-2">{{ feature.name }}</h2>
-        <p>{{ isExpanded ? feature.description : `${feature.description.slice(0, 200)}...` }}</p>
-        <button
-          class="text-amber-500 hover:underline"
-          @click="toggleReadMore()"
-        >{{ isExpanded ? "Read Less" : "Read More" }}</button>
+
+        <h2 class="text-2xl mb-2">
+          <Link :href="route('features.show', feature)">{{ feature.name }}</Link>
+        </h2>
+
+        <div v-if="(feature.description || '').length > 200">
+          <p>{{ isExpanded ? feature.description : `${feature.description.slice(0,
+            200)}...`
+            }}</p>
+          <button
+            v-if="feature.description"
+            class="
+          text-amber-500
+          hover:underline"
+            @click="toggleReadMore()"
+          >{{ isExpanded ? "Read Less" : "Read More" }}</button>
+        </div>
+        <div v-else>
+          <p>{{ feature.description || '' }}</p>
+        </div>
       </div>
-
-
     </div>
   </div>
 </template>

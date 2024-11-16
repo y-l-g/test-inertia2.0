@@ -8,7 +8,6 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
-console.log(usePage().props.auth.user)
 </script>
 
 <template>
@@ -35,8 +34,8 @@ console.log(usePage().props.auth.user)
                   Dashboard
                 </NavLink>
                 <NavLink
-                  :href="route('feature.index')"
-                  :active="route().current('feature.index')"
+                  :href="route('features.index')"
+                  :active="route().current('features.index')"
                 >
                   Features
                 </NavLink>
@@ -149,8 +148,8 @@ console.log(usePage().props.auth.user)
               Dashboard
             </ResponsiveNavLink>
             <ResponsiveNavLink
-              :href="route('feature.index')"
-              :active="route().current('feature.index')"
+              :href="route('features.index')"
+              :active="route().current('features.index')"
             >
               Features
             </ResponsiveNavLink>
