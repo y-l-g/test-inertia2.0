@@ -2,6 +2,7 @@
 import { Feature } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import FeatureDropdown from './FeatureDropdown.vue';
 
 defineProps<{
   feature: Feature;
@@ -55,6 +56,9 @@ const toggleReadMore = () => {
         </button>
       </div>
       <div class="flex-1">
+        <div>
+
+        </div>
 
         <h2 class="text-2xl mb-2">
           <Link :href="route('features.show', feature)">{{ feature.name }}</Link>
@@ -76,6 +80,9 @@ const toggleReadMore = () => {
           <p>{{ feature.description || '' }}</p>
         </div>
       </div>
+      <FeatureDropdown :feature="feature">
+
+      </FeatureDropdown>
     </div>
   </div>
 </template>

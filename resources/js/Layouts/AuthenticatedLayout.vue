@@ -195,6 +195,12 @@ const showingNavigationDropdown = ref(false);
       <!-- Page Content -->
       <div class="py-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div
+            v-if="$page.props.success"
+            class="bg-emerald-400 p-4 rounded-xl text-white font-semibold mb-8"
+          >
+            {{ $page.props.success }}
+          </div>
           <main>
             <slot />
           </main>

@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp
+FROM dunglas/frankenphp:1.3.1-php8.3-bookworm
 
 RUN set -eux; \
     apt-get update \
@@ -37,7 +37,18 @@ RUN set -eux; \
     intl \
     zip
 
-RUN cp $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+ENV PHP_INI_SCAN_DIR=":$PHP_INI_DIR/app.conf.d"
+COPY <<EOT $PHP_INI_DIR/app.conf.d/php.ini
+    realpath_cache_size = 4096K
+    realpath_cache_ttl = 600
+    opcache.enable=1
+    opcache.enable_cli=1
+    opcache.interned_strings_buffer = 16
+    opcache.max_accelerated_files = 20000
+    opcache.memory_consumption = 256
+    opcache.enable_file_override = 1
+EOT
 
 
 

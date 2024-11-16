@@ -1,7 +1,8 @@
-app.localhost {
-    reverse_proxy app:8000
+{
+	frankenphp
 }
 
-db.localhost {
-    reverse_proxy phpmyadmin
+http://localhost {
+    root * public/
+	php_server
 }

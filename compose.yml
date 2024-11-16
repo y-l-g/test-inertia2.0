@@ -8,9 +8,10 @@ services:
     restart: always
     volumes:
       - ./:/app
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - app_data:/data
       - app_config:/config
-    command: ["php", "artisan", "octane:start", "--watch"]
+    # command: ["php", "artisan", "octane:start", "--watch"]
     environment:
       CHOKIDAR_USEPOLLING: "true"
     tty: true
