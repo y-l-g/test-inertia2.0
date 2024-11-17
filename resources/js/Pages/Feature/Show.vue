@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Feature, PaginatedData } from "@/types";
-import { Head } from "@inertiajs/vue3";
+import { Head, router } from "@inertiajs/vue3";
 const props = defineProps<{
   feature: Feature;
 }>();
@@ -20,7 +20,10 @@ const props = defineProps<{
     <div class="mb-4 overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
       <div class="p-6 text-gray-900 dark:text-gray-100 flex gap-8">
         <div class="flex flex-col items-center">
-          <button>
+          <button
+            @click="router.post(route('features.upvote', feature.id), {}, { preserveScroll: true })"
+            :class="feature.user_has_upvoted ? 'text-amber-600' : ''"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -36,10 +39,15 @@ const props = defineProps<{
               />
             </svg>
           </button>
-          <span class="text-2xl font-semibold">
-            12
+          <span
+            :class="'text-2xl font-semibold' + ((feature.user_has_downvoted || feature.user_has_upvoted) && ' text-amber-600')"
+          >
+            {{ feature.upvote_count }}
           </span>
-          <button>
+          <button
+            @click="router.post(route('features.downvote', feature.id), {}, { preserveScroll: true })"
+            :class="feature.user_has_downvoted ? 'text-amber-600' : ''"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\FeatureResource;
 use App\Models\Feature;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class FeatureController extends Controller
@@ -14,9 +15,24 @@ class FeatureController extends Controller
      */
     public function index()
     {
+        $userId = auth()->user()->id;
         return Inertia::render('Feature/Index', [
             'features' => FeatureResource::collection(
-                Feature::latest()->paginate()
+                Feature::latest()
+                    ->withCount([
+                        'upvotes as upvote_count' => function ($query) {
+                            $query->select(DB::raw("SUM(CASE WHEN upvote = 1 THEN 1 WHEN upvote = 0 THEN -1 ELSE 0 END)"));
+                        }
+                    ])
+                    ->withExists([
+                        'upvotes as user_has_upvoted' => function ($query) use ($userId) {
+                            $query->where('user_id', $userId)->where('upvote', 1);
+                        },
+                        'upvotes as user_has_downvoted' => function ($query) use ($userId) {
+                            $query->where('user_id', $userId)->where('upvote', 0);
+                        }
+                    ])
+                    ->paginate()
             )
         ]);
     }
@@ -48,8 +64,24 @@ class FeatureController extends Controller
      */
     public function show(Feature $feature)
     {
+        $userId = auth()->user()->id;
         return Inertia::render('Feature/Show', [
-            'feature' => new FeatureResource($feature)
+            'feature' => new FeatureResource(
+                Feature::where('id', $feature->id)
+                    ->withCount([
+                        'upvotes as upvote_count' => function ($query) {
+                            $query->select(DB::raw("SUM(CASE WHEN upvote = 1 THEN 1 WHEN upvote = 0 THEN -1 ELSE 0 END)"));
+                        }
+                    ])
+                    ->withExists([
+                        'upvotes as user_has_upvoted' => function ($query) use ($userId) {
+                            $query->where('user_id', $userId)->where('upvote', 1);
+                        },
+                        'upvotes as user_has_downvoted' => function ($query) use ($userId) {
+                            $query->where('user_id', $userId)->where('upvote', 0);
+                        }
+                    ])->first()
+            )
         ]);
     }
 
