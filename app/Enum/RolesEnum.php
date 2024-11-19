@@ -8,4 +8,12 @@ enum RolesEnum: string
     case Commenter = 'commenter';
     case User = 'user';
 
+    public static function toArray(): array
+    {
+        return array_reduce(self::cases(), function ($acc, $case) {
+            $acc[$case->name] = $case->value;
+            return $acc;
+        }, []);
+    }
+
 }

@@ -6,8 +6,10 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { can } from '@/helpers';
 
 const showingNavigationDropdown = ref(false);
+const user = usePage().props.auth.user
 </script>
 
 <template>
@@ -38,6 +40,13 @@ const showingNavigationDropdown = ref(false);
                   :active="route().current('features.index')"
                 >
                   Features
+                </NavLink>
+                <NavLink
+                  v-if="can(user, 'manage_users')"
+                  :href="route('users.index')"
+                  :active="route().current('users.index')"
+                >
+                  Users
                 </NavLink>
               </div>
             </div>
@@ -152,6 +161,13 @@ const showingNavigationDropdown = ref(false);
               :active="route().current('features.index')"
             >
               Features
+            </ResponsiveNavLink>
+            <ResponsiveNavLink
+              v-if="can(user, 'manage_users')"
+              :href="route('users.index')"
+              :active="route().current('users.index')"
+            >
+              Users
             </ResponsiveNavLink>
           </div>
 
