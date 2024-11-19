@@ -19,12 +19,12 @@ class Feature extends Model
 
     public function upvotes(): HasMany
     {
-        return $this->hasMany(Upvote::class);
+        return $this->hasMany(Upvote::class)->chaperone();
     }
 
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->chaperone()->latest();
     }
     public function user(): BelongsTo
     {

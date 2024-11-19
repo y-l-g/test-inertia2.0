@@ -19,6 +19,7 @@ class FeatureController extends Controller
         return Inertia::render('Feature/Index', [
             'features' => FeatureResource::collection(
                 Feature::latest()
+                    ->with(['comments'])
                     ->withCount([
                         'upvotes as upvote_count' => function ($query) {
                             $query->select(DB::raw("SUM(CASE WHEN upvote = 1 THEN 1 WHEN upvote = 0 THEN -1 ELSE 0 END)"));
@@ -32,6 +33,7 @@ class FeatureController extends Controller
                             $query->where('user_id', $userId)->where('upvote', 0);
                         }
                     ])
+                    ->withCount('comments')
                     ->paginate()
             )
         ]);
@@ -68,6 +70,7 @@ class FeatureController extends Controller
         return Inertia::render('Feature/Show', [
             'feature' => new FeatureResource(
                 Feature::where('id', $feature->id)
+                    ->with(['comments'])
                     ->withCount([
                         'upvotes as upvote_count' => function ($query) {
                             $query->select(DB::raw("SUM(CASE WHEN upvote = 1 THEN 1 WHEN upvote = 0 THEN -1 ELSE 0 END)"));

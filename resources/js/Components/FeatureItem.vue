@@ -65,10 +65,6 @@ const toggleReadMore = () => {
         </button>
       </div>
       <div class="flex-1">
-        <div>
-
-        </div>
-
         <h2 class="text-2xl mb-2">
           <Link :href="route('features.show', feature)">{{ feature.name }}</Link>
         </h2>
@@ -88,9 +84,16 @@ const toggleReadMore = () => {
         <div v-else>
           <p>{{ feature.description || '' }}</p>
         </div>
+        <div>
+          <Link
+            :href="route('features.show', feature)"
+            class="text-xs"
+          >
+          {{ feature.comments_count }} comments
+          </Link>
+        </div>
       </div>
       <FeatureDropdown :feature="feature">
-
       </FeatureDropdown>
     </div>
   </div>

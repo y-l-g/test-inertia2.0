@@ -23,7 +23,9 @@ class FeatureResource extends JsonResource
             'user' => new UserResource($this->user),
             'upvote_count' => $this->upvote_count ?: 0,
             'user_has_upvoted' => (bool) $this->user_has_upvoted,
-            'user_has_downvoted' => (bool) $this->user_has_downvoted
+            'user_has_downvoted' => (bool) $this->user_has_downvoted,
+            'comments_count' => $this->comments_count,
+            'comments' => CommentResource::collection($this->comments)
         ];
     }
 }
