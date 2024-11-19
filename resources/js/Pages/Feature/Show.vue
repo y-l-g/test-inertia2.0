@@ -3,9 +3,10 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Textarea from "@/Components/Textarea.vue";
+import { can } from "@/helpers";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Feature, PaginatedData } from "@/types";
-import { Head, router, useForm } from "@inertiajs/vue3";
+import { Head, router, useForm, usePage } from "@inertiajs/vue3";
 const props = defineProps<{
   feature: Feature;
 }>();
@@ -14,6 +15,8 @@ const form = useForm({
   comment: "",
 });
 const deleteForm = useForm({});
+
+const user = usePage().props.auth.user
 </script>
 
 <template>
@@ -78,6 +81,7 @@ const deleteForm = useForm({});
           <h2 class="text-2xl mb-2">{{ feature.name }}</h2>
           <p>{{ feature.description }}</p>
           <form
+            v-if="can(user, 'manage_comments')"
             @submit.prevent="form.post(route('comments.store', feature),
               {
                 preserveScroll: true,
@@ -141,6 +145,7 @@ const deleteForm = useForm({});
                 </div>
               </div>
               <button
+                v-if="user.id === comment.user.id"
                 :disabled="deleteForm.processing"
                 @click="deleteForm.delete(route('comments.destroy', comment.id), {
                   preserveScroll: true,

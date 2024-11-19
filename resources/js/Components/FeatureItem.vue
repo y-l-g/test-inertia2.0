@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { Feature } from '@/types';
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import FeatureDropdown from './FeatureDropdown.vue';
+import { can } from '@/helpers';
 
 const props = defineProps<{
   feature: Feature;
 }>();
 
+const user = usePage().props.auth.user
 const isExpanded = ref(false);
 const toggleReadMore = () => {
   isExpanded.value = !isExpanded.value
@@ -93,7 +95,10 @@ const toggleReadMore = () => {
           </Link>
         </div>
       </div>
-      <FeatureDropdown :feature="feature">
+      <FeatureDropdown
+        v-if="can(user, 'manage_features')"
+        :feature="feature"
+      >
       </FeatureDropdown>
     </div>
   </div>

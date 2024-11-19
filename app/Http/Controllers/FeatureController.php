@@ -117,6 +117,9 @@ class FeatureController extends Controller
      */
     public function destroy(Feature $feature)
     {
+        if ($feature->user_id !== auth()->id()) {
+            abort(403);
+        }
         $feature->delete();
         return to_route('features.index')->with('success', 'Feature has been deleted succesfully');
 
