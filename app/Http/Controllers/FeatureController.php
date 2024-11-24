@@ -2,54 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CommentResource;
 use App\Http\Resources\FeatureResource;
+use App\Http\Resources\IndexFeatureResource;
 use App\Models\Feature;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class FeatureController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $userId = auth()->user()->id;
-        return Inertia::render('Feature/Index', [
-            'features' => FeatureResource::collection(
-                Feature::latest()
-                    ->with(['comments'])
-                    ->withCount([
-                        'upvotes as upvote_count' => function ($query) {
-                            $query->select(DB::raw("SUM(CASE WHEN upvote = 1 THEN 1 WHEN upvote = 0 THEN -1 ELSE 0 END)"));
-                        }
-                    ])
-                    ->withExists([
-                        'upvotes as user_has_upvoted' => function ($query) use ($userId) {
-                            $query->where('user_id', $userId)->where('upvote', 1);
-                        },
-                        'upvotes as user_has_downvoted' => function ($query) use ($userId) {
-                            $query->where('user_id', $userId)->where('upvote', 0);
-                        }
-                    ])
-                    ->withCount('comments')
-                    ->paginate()
+        $page = $request->integer('page', 1);
+
+        $paginated = Feature::leftJoin('upvotes', 'features.id', '=', 'upvotes.feature_id')
+            ->select(
+                'features.id',
+                'features.name',
+                'features.description',
+                'features.created_at',
+                DB::raw("SUM(CASE WHEN upvotes.upvote = 1 THEN 1 WHEN upvotes.upvote = 0 THEN -1 ELSE 0 END) as upvote_count"),
+                DB::raw("MAX(CASE WHEN upvotes.user_id = " . auth()->id() . " THEN upvotes.upvote END) as user_vote")
             )
+            ->groupBy('features.id')
+            ->with('user:id')
+            ->withCount('comments')
+            ->latest('features.created_at')
+            ->paginate();
+        return Inertia::render('Feature/Index', [
+            'features' => Inertia::merge(FeatureResource::collection($paginated->items())->collection),
+            'lastPage' => $paginated->lastPage(),
+            'page' => $page,
         ]);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Feature/Create');
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -61,46 +52,45 @@ class FeatureController extends Controller
         return to_route('features.index')->with('success', 'Feature created successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Feature $feature)
+    public function show(Request $request, Feature $feature)
     {
-        $userId = auth()->user()->id;
+        $page = $request->integer('page', 1);
+
+        $paginated = $feature->comments()
+            ->select('id', 'comment', 'user_id', 'feature_id', 'created_at')
+            ->with('user:id,name')
+            ->latest('created_at')
+            ->paginate(10);
+
         return Inertia::render('Feature/Show', [
-            'feature' => new FeatureResource(
-                Feature::where('id', $feature->id)
-                    ->with(['comments'])
-                    ->withCount([
-                        'upvotes as upvote_count' => function ($query) {
-                            $query->select(DB::raw("SUM(CASE WHEN upvote = 1 THEN 1 WHEN upvote = 0 THEN -1 ELSE 0 END)"));
-                        }
+            'feature' => fn() =>
+                new FeatureResource(Feature::leftJoin('upvotes', 'features.id', '=', 'upvotes.feature_id')
+                    ->select(
+                        'features.id',
+                        'features.name',
+                        'features.description',
+                        'features.created_at',
+                        DB::raw("SUM(CASE WHEN upvotes.upvote = 1 THEN 1 WHEN upvotes.upvote = 0 THEN -1 ELSE 0 END) as upvote_count"),
+                        DB::raw("MAX(CASE WHEN upvotes.user_id = " . auth()->id() . " THEN upvotes.upvote ELSE NULL END) as user_vote")
+                    )
+                    ->where('features.id', $feature->id)
+                    ->groupBy('features.id')
+                    ->with([
+                        'user:id,name',
                     ])
-                    ->withExists([
-                        'upvotes as user_has_upvoted' => function ($query) use ($userId) {
-                            $query->where('user_id', $userId)->where('upvote', 1);
-                        },
-                        'upvotes as user_has_downvoted' => function ($query) use ($userId) {
-                            $query->where('user_id', $userId)->where('upvote', 0);
-                        }
-                    ])->first()
-            )
+                    ->firstOrFail()),
+
+            'comments' => Inertia::merge(CommentResource::collection($paginated->items())->collection),
+            'lastPage' => $paginated->lastPage(),
+            'page' => $page,
         ]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Feature $feature)
     {
         return Inertia::render('Feature/Edit', [
             'feature' => new FeatureResource($feature)
         ]);
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Feature $feature)
     {
         $data = $request->validate([
@@ -111,10 +101,6 @@ class FeatureController extends Controller
         return to_route('features.index')->with('success', 'Feature updated successfully');
 
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Feature $feature)
     {
         if ($feature->user_id !== auth()->id()) {

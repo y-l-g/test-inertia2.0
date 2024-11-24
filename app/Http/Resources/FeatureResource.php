@@ -2,8 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Comment;
+use App\Models\Upvote;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class FeatureResource extends JsonResource
 {
@@ -21,11 +24,9 @@ class FeatureResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'user' => new UserResource($this->user),
-            'upvote_count' => $this->upvote_count ?: 0,
-            'user_has_upvoted' => (bool) $this->user_has_upvoted,
-            'user_has_downvoted' => (bool) $this->user_has_downvoted,
+            'upvote_count' => $this->upvote_count ?? 0,
+            'user_vote' => $this->user_vote,
             'comments_count' => $this->comments_count,
-            'comments' => CommentResource::collection($this->comments)
         ];
     }
 }

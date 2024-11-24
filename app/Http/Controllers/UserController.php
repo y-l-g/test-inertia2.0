@@ -56,13 +56,9 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'password' => bcrypt($validated['password'])
         ]);
 
-        if (!empty($validated['password'])) {
-            $user->update([
-                'password' => bcrypt($validated['password']),
-            ]);
-        }
         $user->syncRoles($validated['roles']);
 
         return back()->with('success', 'User created successfully');
@@ -81,13 +77,11 @@ class UserController extends Controller
 
     public function edit(Request $request, User $user)
     {
-        $roles = RolesEnum::toArray(); // ['Admin' => 'admin', 'Commenter' => 'commenter', 'User' => 'user']
-
+        $roles = RolesEnum::toArray();
         return Inertia::render('Users/Edit', [
             'user' => new AuthUserResource($user),
-            'roles' => $roles, // Transmet les rôles à Inertia
+            'roles' => $roles,
         ]);
-
     }
 
     public function destroy(Request $request, User $user)

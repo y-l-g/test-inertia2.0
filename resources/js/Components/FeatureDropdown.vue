@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import Dropdown from './Dropdown.vue';
 import DropdownLink from './DropdownLink.vue';
 import { Feature } from '@/types';
@@ -7,6 +7,8 @@ import { Feature } from '@/types';
 defineProps<{
   feature: Feature;
 }>();
+
+const deleteFeatureForm = useForm({});
 </script>
 
 <template>
@@ -43,13 +45,13 @@ defineProps<{
       <DropdownLink :href="route('features.edit', feature.id)">
         Edit Feature
       </DropdownLink>
-      <DropdownLink
-        :href="route('features.destroy', feature.id)"
-        method="delete"
-        as="button"
+      <div
+        class="cursor-pointer block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:bg-gray-800"
+        @click="deleteFeatureForm.delete(route('features.destroy', feature.id), {
+        })"
       >
         Delete Feature
-      </DropdownLink>
+      </div>
     </template>
   </Dropdown>
 </template>

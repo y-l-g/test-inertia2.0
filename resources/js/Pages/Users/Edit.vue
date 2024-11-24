@@ -10,7 +10,9 @@ import { User } from "@/types";
 import { Head, useForm } from "@inertiajs/vue3";
 
 const props = defineProps<{
-  roles: String[]
+  roles: {
+    [key: string]: string
+  }
   user: User
 }>();
 
@@ -92,7 +94,7 @@ const form = useForm({
 
             <TextInput
               id="password"
-              type="text"
+              type="password"
               class="mt-1 block w-full"
               v-model="form.password"
               autofocus
@@ -113,7 +115,7 @@ const form = useForm({
 
             <TextInput
               id="password_confirmation"
-              type="text"
+              type="password"
               class="mt-1 block w-full"
               v-model="form.password_confirmation"
               autofocus

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import FeatureItem from "@/Components/FeatureItem.vue";
+import Spinner from "@/Components/Spinner.vue";
 import { can } from "@/helpers";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Feature, PaginatedData } from "@/types";
-import { Head, Link, usePage } from "@inertiajs/vue3";
+import { Feature } from "@/types";
+import { Head, Link, usePage, WhenVisible } from "@inertiajs/vue3";
 const props = defineProps<{
-  features: PaginatedData<Feature>;
+  features: Feature[],
+  page: number,
+  lastPage: number
 }>();
-
 const user = usePage().props.auth.user
 </script>
 
@@ -28,9 +30,27 @@ const user = usePage().props.auth.user
     Create new Feature
     </Link>
     <FeatureItem
-      v-for="feature in features.data"
+      v-for="feature in features"
       :key="feature.id"
       :feature="feature"
     ></FeatureItem>
+    <WhenVisible
+      v-if="page < lastPage"
+      always
+      :params="{
+        data: {
+          page: page + 1,
+        },
+        only: ['features', 'page'],
+        preserveUrl: true
+      }"
+    >
+      <div v-if="page < lastPage">
+        <Spinner v-if="page < lastPage" />
+      </div>
+      <template #fallback>
+        <Spinner v-if="page < lastPage" />
+      </template>
+    </WhenVisible>
   </AuthenticatedLayout>
 </template>

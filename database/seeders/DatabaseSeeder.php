@@ -4,17 +4,16 @@ namespace Database\Seeders;
 
 use App\Enum\PermissionsEnum;
 use App\Enum\RolesEnum;
+use App\Models\Comment;
 use App\Models\Feature;
+use App\Models\Upvote;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
-
-
     public function run(): void
     {
         $manageFeaturesPermission = Permission::create(['name' => PermissionsEnum::ManageFeatures]);
@@ -36,19 +35,34 @@ class DatabaseSeeder extends Seeder
                 $upVoteDownVote,
             ]);
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name' => 'User User',
             'email' => 'user@example.com',
         ])->assignRole(RolesEnum::User);
-        User::factory()->create([
+        $commenter = User::factory()->create([
             'name' => 'Commenter User',
             'email' => 'commenter@example.com',
         ])->assignRole(RolesEnum::Commenter);
-        User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
         ])->assignRole(RolesEnum::Admin);
 
-        Feature::factory(100)->create();
+        Feature::factory(50)
+            ->has(Comment::factory(50)
+                ->sequence(
+                    ['user_id' => $commenter->id],
+                    ['user_id' => $admin->id]
+                ))
+            ->has(Upvote::factory(3)
+                ->sequence(
+                    ['user_id' => $user->id],
+                    ['user_id' => $commenter->id],
+                    ['user_id' => $admin->id]
+                ))
+
+            ->create([
+                'user_id' => $admin
+            ]);
     }
 }

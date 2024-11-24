@@ -6,9 +6,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Feature>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Upvote>
  */
-class FeatureFactory extends Factory
+class UpvoteFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,9 +18,7 @@ class FeatureFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->text(15),
-            'description' => fake()->text(2000),
-            'created_at' => fake()->dateTimeBetween('-1 year', 'now'),
+            'upvote' => fake()->boolean(),
         ];
     }
 }

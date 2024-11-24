@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->foreignIdFor(User::class)
                 ->cascadeOnDelete();
             $table->boolean('upvote');
+            $table->unique(['feature_id', 'user_id']);
             $table->timestamps();
         });
     }

@@ -1,32 +1,114 @@
 services:
+  #################################################
+  # DB (MySQL)
+  #################################################
+  db:
+    image: "mysql:8.0"
+    restart: always
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_USER: user
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  ##################################################
+  # PHPMYADMIN
+  ##################################################
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_USER: user
+      PMA_PASSWORD: password
+  #################################################
+  # OCTANE:FRANKENPHP
+  #################################################
   app:
+    build:
+      target: common
+    restart: always
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    entrypoint: ["php", "artisan", "octane:frankenphp"]
+    healthcheck:
+      test: ["CMD", "php", "artisan", "octane:status"]
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+  ##################################################
+  # REDIS
+  ##################################################
+  redis:
+    image: "redis:7.4"
+    restart: always
+    volumes:
+      - "redis-data:/data"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    depends_on:
+      app:
+        condition: service_healthy
+        restart: true
+  #################################################
+  # CRON
+  #################################################
+  cron:
+    build:
+      target: common
+    restart: always
+    volumes:
+      - cron_data:/data
+      - cron_config:/config
+    command: ["cron", "-f"]
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "cron"]
+    depends_on:
+      redis:
+        condition: service_healthy
+        restart: true
+  ##################################################
+  # PROXY
+  ##################################################
+  proxy:
+    build:
+      target: caddy-reverse-proxy
+    restart: always
+    cap_add:
+      - NET_ADMIN
     ports:
       - "80:80"
       - "443:443"
-      - "8000:8000"
-    build: .
-    restart: always
+      - "443:443/udp"
     volumes:
-      - ./:/app
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - app_data:/data
-      - app_config:/config
-    # command: ["php", "artisan", "octane:start", "--watch"]
-    environment:
-      CHOKIDAR_USEPOLLING: "true"
-    tty: true
-  mailpit:
-    image: axllent/mailpit
-    restart: always
-    volumes:
-      - ./mailpi_data:/data
-    ports:
-      - 8025:8025
-      - 1025:1025
-    environment:
-      MP_DATABASE: /data/mailpit.db
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      - proxy_data:/data
+      - proxy_config:/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
+    depends_on:
+      cron:
+        condition: service_healthy
+        restart: true
+  ##################################################
+  # VOLUMES
+  ##################################################
 volumes:
-  app_data:
-  app_config:
+  caddy_data:
+  caddy_config:
+  ##################################################
+  proxy_data:
+  proxy_config:
+  ##################################################
+  horizon_data:
+  horizon_config:
+  ##################################################
+  mysql-data:
+  redis-data:
+  ##################################################
+  cron_data:
+  cron_config:

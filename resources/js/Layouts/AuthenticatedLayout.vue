@@ -22,7 +22,10 @@ const user = usePage().props.auth.user
             <div class="flex">
               <!-- Logo -->
               <div class="flex shrink-0 items-center">
-                <Link :href="route('dashboard')">
+                <Link
+                  prefetch
+                  :href="route('dashboard')"
+                >
                 <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                 </Link>
               </div>
@@ -30,18 +33,21 @@ const user = usePage().props.auth.user
               <!-- Navigation Links -->
               <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <NavLink
+                  prefetch
                   :href="route('dashboard')"
                   :active="route().current('dashboard')"
                 >
                   Dashboard
                 </NavLink>
                 <NavLink
+                  prefetch
                   :href="route('features.index')"
                   :active="route().current('features.index')"
                 >
                   Features
                 </NavLink>
                 <NavLink
+                  prefetch
                   v-if="can(user, 'manage_users')"
                   :href="route('users.index')"
                   :active="route().current('users.index')"
@@ -151,18 +157,21 @@ const user = usePage().props.auth.user
         >
           <div class="space-y-1 pb-3 pt-2">
             <ResponsiveNavLink
+              prefetch
               :href="route('dashboard')"
               :active="route().current('dashboard')"
             >
               Dashboard
             </ResponsiveNavLink>
             <ResponsiveNavLink
+              prefetch
               :href="route('features.index')"
               :active="route().current('features.index')"
             >
               Features
             </ResponsiveNavLink>
             <ResponsiveNavLink
+              prefetch
               v-if="can(user, 'manage_users')"
               :href="route('users.index')"
               :active="route().current('users.index')"

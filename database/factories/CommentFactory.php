@@ -6,9 +6,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Feature>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Comment>
  */
-class FeatureFactory extends Factory
+class CommentFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,8 +18,7 @@ class FeatureFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->text(15),
-            'description' => fake()->text(2000),
+            'comment' => fake()->text(1000),
             'created_at' => fake()->dateTimeBetween('-1 year', 'now'),
         ];
     }
