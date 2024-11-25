@@ -34,9 +34,28 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
-    entrypoint: ["php", "artisan", "octane:frankenphp"]
+    entrypoint: ["php", "artisan", "octane:frankenphp", "--host=0.0.0.0"]
     healthcheck:
       test: ["CMD", "php", "artisan", "octane:status"]
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+  #################################################
+  # SSR
+  #################################################
+  ssr:
+    build:
+      target: common
+    restart: always
+    volumes:
+      - ssr_data:/data
+      - ssr_config:/config
+    entrypoint: ["php", "artisan", "inertia:start-ssr"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:13714/render"]
+    expose:
+      - "13714"
     depends_on:
       db:
         condition: service_healthy
@@ -112,3 +131,6 @@ volumes:
   ##################################################
   cron_data:
   cron_config:
+    ##################################################
+  ssr_data:
+  ssr_config:
