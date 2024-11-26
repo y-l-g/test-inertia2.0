@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DOT_ENV: ${{ secrets.ENV }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.KEY }}
+          allenvs: true
+          script: |
+            cd test.yleg.ovh || exit 1
+            git checkout main || exit 1
+            git pull || exit 1
+             echo "$DOT_ENV" > .env || exit 1
+            docker compose down || exit 1
+            docker compose up -d --build || exit 1
+            rm .env || exit 1
