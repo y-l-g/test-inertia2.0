@@ -1,4 +1,10 @@
-FROM dunglas/frankenphp:1.3.1-php8.3-bookworm AS common
+###########################################
+# FrankenPHP
+###########################################
+
+FROM dunglas/frankenphp:1.3.1 AS common
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN set -eux; \
     apt-get update \
@@ -12,21 +18,15 @@ RUN set -eux; \
     nano \
     nodejs \
     npm \
-    && apt-get -y autoremove \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean
 
 RUN set -eux; \
     install-php-extensions \
     @composer \
     gd \
     imap \
-    xml \
-    mbstring \
-    readline \
     soap \
     bcmath \
-    curl \
     ldap \
     pcntl \
     igbinary \
@@ -38,11 +38,6 @@ RUN set -eux; \
     opcache \
     intl \
     zip
-
-#####################################################
-
-RUN echo "* * * * * root /usr/local/bin/php /app/artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/schedule
-RUN chmod 0644 /etc/cron.d/schedule
 
 #####################################################
 
@@ -63,11 +58,9 @@ EOT
 
 WORKDIR /app
 
-#####################################################
+COPY --link composer.json composer.lock ./
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
-
-COPY composer.json composer.lock ./
 
 RUN composer install \
     # --no-dev \
@@ -76,7 +69,7 @@ RUN composer install \
     --no-ansi \
     --no-scripts
 
-COPY package.json package-lock.json ./
+COPY --link package.json package-lock.json ./
 
 RUN npm ci
 
@@ -87,7 +80,18 @@ RUN npm run build
 RUN composer dump-autoload \
     # --no-dev \
     --classmap-authoritative \
-    --optimize
+    --optimize \
+    --no-ansi \
+    && composer clear-cache
+
+RUN php artisan storage:link
+RUN php artisan optimize
+RUN rm .env
+
+#####################################################
+
+RUN echo "* * * * * root /usr/local/bin/php /app/artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/schedule
+RUN chmod 0644 /etc/cron.d/schedule
 
 #####################################################
 # CADDY-REVERSE-PROXY
@@ -95,7 +99,7 @@ RUN composer dump-autoload \
 
 FROM caddy:2.8 AS caddy-reverse-proxy
 
-COPY --link ./Caddyfile /etc/caddy/Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile
 
 RUN apk add --update curl && \
     rm -rf /var/cache/apk/*

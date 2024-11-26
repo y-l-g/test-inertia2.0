@@ -63,7 +63,7 @@ const downVote = () => {
       <div class="flex flex-col items-center">
         <button
           :disabled="upVoteForm.processing"
-          @click="upVoteForm.post(route('features.upvote', feature.id), { preserveState: true, preserveScroll: true, only: [''], async: true, onSuccess: upVote })"
+          @click="upVoteForm.post(route('features.upvote', feature.id), { preserveState: true, preserveScroll: true, only: ['hh'], async: true, onSuccess: upVote })"
           :class="(feature.user_vote == 1 ? 'text-amber-600' : '')"
         >
           <svg
@@ -87,7 +87,7 @@ const downVote = () => {
           {{ feature.upvote_count }}
         </span>
         <button
-          @click="router.post(route('features.downvote', feature.id), {}, { preserveState: true, preserveScroll: true, only: [''], onSuccess: downVote })"
+          @click="router.post(route('features.downvote', feature.id), {}, { preserveState: true, preserveScroll: true, only: ['hh'], onSuccess: downVote })"
           :class="feature.user_vote == 0 ? 'text-amber-600' : ''"
         >
           <svg

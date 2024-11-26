@@ -3,21 +3,19 @@
 		metrics
 	}
 }
-app.localhost {
 
-	basic_auth /pulse* {
+{$APP_DOMAIN} {
+    basic_auth /pulse* {
 		# Username "Bob", password "hiccup"
 		Bob $2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG
 	}
-
 	basic_auth /horizon/* {
 		Bob $2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG
-	}
+    }
 	reverse_proxy app:8000
-
     metrics /metrics
 }
 
-db.app.localhost {
+{$PMA_APP_DOMAIN} {
 	reverse_proxy phpmyadmin
 }
