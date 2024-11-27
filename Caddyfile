@@ -4,7 +4,7 @@
 	}
 }
 
-test.yleg.ovh {
+{$APP_DOMAIN} {
     basic_auth /pulse* {
 		# Username "Bob", password "hiccup"
 		Bob $2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG
@@ -16,7 +16,7 @@ test.yleg.ovh {
     metrics /metrics
 }
 
-admin.test.yleg.ovh {
+{$PMA_APP_DOMAIN} {
     basic_auth * {
         Bob $2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG
     }
