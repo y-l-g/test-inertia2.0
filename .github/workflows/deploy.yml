@@ -39,11 +39,6 @@ jobs:
             git checkout "main"
             git pull
 
-            # Création du .env
-            if [ -z "${DOT_ENV:-}" ]; then
-              echo "Erreur : DOT_ENV est vide."
-              exit 1
-            fi
             echo "$DOT_ENV" > .env
 
             # Construction des images Docker
@@ -72,7 +67,7 @@ jobs:
                 }
 
                 # Lancer les migrations
-                if docker compose exec -T app "php artisan migrate --force"; then
+                if docker compose exec -T app "cd /app && php artisan migrate --force"; then
                   echo "Migrations réussies. Déploiement terminé."
                   cd ..
                   rm -rf "test.yleg.ovh.backup"
@@ -101,5 +96,6 @@ jobs:
             cd ..
             rm -rf "test.yleg.ovh"
             mv "test.yleg.ovh.backup" "test.yleg.ovh"
+            echo "$DOT_ENV" > .env
             docker compose up -d
             exit 1
