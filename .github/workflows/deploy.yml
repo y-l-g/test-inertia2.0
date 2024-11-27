@@ -10,14 +10,15 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         env:
           DOT_ENV: ${{ secrets.ENV }}
-          DATABASE: ${{ secrets.DATABASE }}
-          ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.KEY }}
-          envs: DOT_ENV,DATABASE,ROOT_PASSWORD
+          envs: DOT_ENV,DB_DATABASE,DB_USERNAME,DB_PASSWORD
           script: |
             set -euo pipefail  # Stop on error, undefined vars, or failed pipes
 
@@ -66,7 +67,7 @@ jobs:
                 echo "Services sains. Lancement des migrations..."
 
                 # Sauvegarder la base de données
-                docker compose exec -T db mysqldump -u root --password=$ROOT_PASSWORD $DATABASE > db_backup.sql || {
+                docker compose exec -T db mysqldump -u $DB_USERNAME --password=$DB_PASSWORD $DB_DATABASE > db_backup.sql || {
                   echo "Échec de la sauvegarde de la base de données."
                   exit 1
                 }
@@ -80,7 +81,7 @@ jobs:
                 else
                   echo "Échec des migrations. Restauration..."
                   echo "Restauration de la base de données..."
-                  docker compose exec -T db mysql -u root --password=root_password database_name < db_backup.sql || {
+                  docker compose exec -T db mysql -u $DB_USERNAME --password=$DB_PASSWORD $DB_DATABASE < db_backup.sql || {
                     echo "Échec de la restauration de la base de données."
                     exit 1
                   }
