@@ -24,13 +24,27 @@ jobs:
             cd test.yleg.ovh || exit 1
             git checkout main || exit 1
             git pull || exit 1
-
             echo "$DOT_ENV" > .env
-
             docker compose down || exit 1
-
             docker compose up -d --wait --build || exit 1
             echo "Attente du démarrage complet des services..."
             sleep 60
+
+            echo "État des conteneurs :"
+            docker compose ps
+
+            echo "Logs du proxy :"
+            docker compose logs proxy
+
+            echo "Logs de tous les conteneurs :"
+            docker compose logs
+
+            echo "Configuration du conteneur proxy :"
+            docker compose config | grep -A 10 proxy:
+
+            if ! docker compose ps | grep proxy | grep -q "healthy"; then
+              echo "Le proxy n'est pas healthy. Sortie..."
+              exit 1
+            fi
 
             rm .env || exit 1
