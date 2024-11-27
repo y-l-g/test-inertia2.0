@@ -24,5 +24,20 @@ jobs:
             git pull || exit 1
              echo "$DOT_ENV" > .env || exit 1
             docker compose down || exit 1
+
+            docker compose up -d db || exit 1
+            echo "Attente du démarrage de la base de données..."
+            sleep 30
+
+            # Vérifier l'état de la base de données
+            if ! docker compose ps | grep db | grep -q "healthy"; then
+              echo "La base de données n'a pas démarré correctement"
+              docker compose logs db
+              exit 1
+            fi
+
             docker compose up -d --wait --build || exit 1
+            echo "Attente du démarrage complet des services..."
+            sleep 20
+
             rm .env || exit 1
