@@ -1,5 +1,4 @@
 name: Deploy
-
 on:
   push:
     branches: ["main"]
@@ -25,17 +24,13 @@ jobs:
             git checkout main || exit 1
             git pull || exit 1
             echo "$DOT_ENV" > .env
+            echo "Contenu du .env :"
+            cat .env
             docker compose down || exit 1
             docker compose up -d --build
 
-            echo "État initial des conteneurs :"
-            docker compose ps
-
             echo "Logs du proxy :"
             docker compose logs proxy || true
-
-            echo "Logs de tous les conteneurs :"
-            docker compose logs || true
 
             # Vérification finale
             if ! docker compose ps | grep proxy | grep -q "healthy"; then
