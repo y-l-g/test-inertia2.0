@@ -26,6 +26,7 @@ jobs:
 
             # Vérification du contenu du .env
             echo "Contenu du fichier .env :"
+            echo $DOT_ENV
             cat .env | grep -i "DB_" || echo "Aucune variable DB_ trouvée!"
 
             docker compose down || exit 1
