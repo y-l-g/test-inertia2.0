@@ -23,6 +23,11 @@ jobs:
             git checkout main || exit 1
             git pull || exit 1
              echo "$DOT_ENV" > .env || exit 1
+
+            # Vérification du contenu du .env
+            echo "Contenu du fichier .env :"
+            cat .env | grep -i "DB_" || echo "Aucune variable DB_ trouvée!"
+
             docker compose down || exit 1
 
             docker compose up -d db || exit 1
