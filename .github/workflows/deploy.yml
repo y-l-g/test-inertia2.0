@@ -94,7 +94,6 @@ jobs:
               fi
               sleep 1
             done
-
             # Si les services ne sont pas sains
             echo "Les services ne sont pas sains. Restauration..."
             docker compose down
