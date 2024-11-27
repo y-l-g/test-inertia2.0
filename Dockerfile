@@ -99,9 +99,6 @@ RUN chmod 0644 /etc/cron.d/schedule
 
 FROM caddy:2.8 AS caddy-reverse-proxy
 
-ENV APP_DOMAIN=${APP_DOMAIN}
-ENV PMA_APP_DOMAIN=${PMA_APP_DOMAIN}
-
 COPY Caddyfile /etc/caddy/Caddyfile
 
 RUN apk add --update curl && \
