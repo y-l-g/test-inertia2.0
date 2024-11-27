@@ -20,15 +20,86 @@ jobs:
           key: ${{ secrets.KEY }}
           envs: DOT_ENV,DB_DATABASE,DB_USERNAME,DB_PASSWORD
           script: |
+            set -euo pipefail  # Stop on error, undefined vars, or failed pipes
+
+            # Déploiement
+            echo "Début du déploiement..."
+
+            # Sauvegarde de l'état actuel
+            echo "Sauvegarde des fichiers actuels..."
+              if [ -d "test.yleg.ovh" ]; then
+                rm -rf "test.yleg.ovh.backup"
+                cp -r "test.yleg.ovh" "test.yleg.ovh.backup"
+              fi
+            # Clonage ou mise à jour du dépôt
             if [ ! -d "test.yleg.ovh" ]; then
-              git clone git@github.com:y-l-g/test-inertia2.0.git test.yleg.ovh || exit 1
+              git clone "git@github.com:y-l-g/test-inertia2.0.git" "test.yleg.ovh"
             fi
-            cd test.yleg.ovh || exit 1
-            git checkout main || exit 1
-            git pull || exit 1
+            cd "test.yleg.ovh"
+            git checkout "main"
+            git pull
+
+            # Création du .env
+            if [ -z "${DOT_ENV:-}" ]; then
+              echo "Erreur : DOT_ENV est vide."
+              exit 1
+            fi
             echo "$DOT_ENV" > .env
 
-            docker compose down || exit 1
-            docker compose up -d --build || exit 1
+            # Construction des images Docker
+            docker compose build || {
+              echo "Échec de la construction des images. Restauration des fichiers..."
+              cd ..
+              rm -rf "test.yleg.ovh"
+              mv "test.yleg.ovh.backup" "test.yleg.ovh"
+              exit 1
+            }
 
-            rm .env || exit 1
+            # Démarrage des services
+            docker compose down
+            docker compose up -d
+
+            # Vérification de la santé
+            echo "Vérification de la santé..."
+            for i in {1..30}; do
+              if docker compose ps | grep "proxy" | grep -q "healthy"; then
+                echo "Services sains. Lancement des migrations..."
+
+                # Sauvegarder la base de données
+                docker compose exec -T db mysqldump -u root --password=$DB_PASSWORD $DB_DATABASE > db_backup.sql || {
+                  echo "Échec de la sauvegarde de la base de données."
+                  exit 1
+                }
+
+                # Lancer les migrations
+                if docker compose exec -T app "php artisan migrate --force"; then
+                  echo "Migrations réussies. Déploiement terminé."
+                  cd ..
+                  rm -rf "test.yleg.ovh.backup"
+                  exit 0
+                else
+                  echo "Échec des migrations. Restauration..."
+                  echo "Restauration de la base de données..."
+                  docker compose exec -T db mysql -u root --password=$DB_PASSWORD $DB_DATABASE < db_backup.sql || {
+                    echo "Échec de la restauration de la base de données."
+                    exit 1
+                  }
+                  docker compose down
+                  cd ..
+                  rm -rf "test.yleg.ovh"
+                  mv "test.yleg.ovh.backup" "test.yleg.ovh"
+                  docker compose up -d
+                  exit 1
+                fi
+              fi
+              sleep 1
+            done
+
+            # Si les services ne sont pas sains
+            echo "Les services ne sont pas sains. Restauration..."
+            docker compose down
+            cd ..
+            rm -rf "test.yleg.ovh"
+            mv "test.yleg.ovh.backup" "test.yleg.ovh"
+            docker compose up -d
+            exit 1
