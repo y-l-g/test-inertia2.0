@@ -27,9 +27,8 @@ jobs:
             echo "$DOT_ENV" > .env
             docker compose down || exit 1
             docker compose up -d --wait --build || exit 1
-            echo "Attente du démarrage complet des services..."
-            sleep 60
 
+            sleep 60
             echo "État des conteneurs :"
             docker compose ps
 
