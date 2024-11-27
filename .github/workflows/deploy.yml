@@ -24,7 +24,6 @@ jobs:
             cd test.yleg.ovh || exit 1
             git checkout main || exit 1
             git pull || exit 1
-            cat $DOT_ENV > .env || exit 1
 
             # Debug
             echo "Vérification de DOT_ENV :"
