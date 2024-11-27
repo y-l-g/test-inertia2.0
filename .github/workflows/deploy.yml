@@ -22,13 +22,21 @@ jobs:
             cd test.yleg.ovh || exit 1
             git checkout main || exit 1
             git pull || exit 1
-             echo "$DOT_ENV" > .env || exit 1
+            cat $DOT_ENV > .env || exit 1
 
-            # Vérification du contenu du .env
-            echo "Contenu du fichier .env :"
-            echo $DOT_ENV
-            cat .env | grep -i "DB_" || echo "Aucune variable DB_ trouvée!"
+            # Debug
+            echo "Vérification de DOT_ENV :"
+            echo "Longueur de DOT_ENV : ${#DOT_ENV}"
 
+            if [ -z "$DOT_ENV" ]; then
+              echo "ERREUR : DOT_ENV est vide!"
+              exit 1
+            fi
+
+            echo "$DOT_ENV" > .env
+            echo "Contenu du fichier .env après création :"
+            ls -la .env
+            cat .env
             docker compose down || exit 1
 
             docker compose up -d db || exit 1
