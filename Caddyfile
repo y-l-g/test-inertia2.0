@@ -16,9 +16,9 @@
     metrics /metrics
 }
 
-{$PMA_APP_DOMAIN} {
-    basic_auth * {
-        Bob $2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG
-    }
-	reverse_proxy phpmyadmin
-}
+# {$PMA_APP_DOMAIN} {
+#     basic_auth * {
+#         Bob $2a$14$Zkx19XLiW6VYouLHR5NmfOFU0z2GTNmpkT/5qqR7hx4IjWJPDhjvG
+#     }
+# 	reverse_proxy phpmyadmin
+# }

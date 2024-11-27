@@ -9,7 +9,7 @@ services:
       - mysql-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_USER: ${DB_USERNAME}
     healthcheck:
@@ -30,20 +30,20 @@ services:
       db:
         condition: service_healthy
         restart: true
-  ##################################################
-  # PHPMYADMIN
-  ##################################################
-  phpmyadmin:
-    image: phpmyadmin:latest
-    restart: always
-    environment:
-      PMA_HOST: db
-      PMA_USER: ${DB_USERNAME}
-      PMA_PASSWORD: ${DB_PASSWORD}
-    depends_on:
-      db:
-        condition: service_healthy
-        restart: true
+  # ##################################################
+  # # PHPMYADMIN
+  # ##################################################
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   restart: always
+  #   environment:
+  #     PMA_HOST: db
+  #     PMA_USER: ${DB_USERNAME}
+  #     PMA_PASSWORD: ${DB_PASSWORD}
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #       restart: true
   #################################################
   # OCTANE:FRANKENPHP
   #################################################
@@ -59,7 +59,7 @@ services:
       start_period: 20s
     command: >
       sh -c "
-        php artisan migrate --isolated --force &&
+        # php artisan migrate --isolated --force &&
         php artisan octane:frankenphp --host=0.0.0.0
       "
     depends_on:
