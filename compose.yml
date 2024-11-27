@@ -14,6 +14,7 @@ services:
       MYSQL_USER: ${DB_USERNAME}
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      start_period: 20s
   ##################################################
   # REDIS
   ##################################################
@@ -24,6 +25,7 @@ services:
       - "redis-data:/data"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
+      start_period: 20s
     depends_on:
       db:
         condition: service_healthy
@@ -54,6 +56,7 @@ services:
       - caddy_config:/config
     healthcheck:
       test: ["CMD", "php", "artisan", "octane:status"]
+      start_period: 20s
     command: >
       sh -c "
         php artisan migrate --isolated --force &&
@@ -76,6 +79,7 @@ services:
     command: ["php", "artisan", "inertia:start-ssr"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:13714/render"]
+      start_period: 20s
     expose:
       - "13714"
     depends_on:
@@ -95,6 +99,7 @@ services:
     command: ["cron", "-f"]
     healthcheck:
       test: ["CMD", "pgrep", "-f", "cron"]
+      start_period: 20s
     depends_on:
       app:
         condition: service_healthy
@@ -120,6 +125,7 @@ services:
       PMA_APP_DOMAIN: ${PMA_APP_DOMAIN}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
+      start_period: 20s
     depends_on:
       ssr:
         condition: service_healthy
