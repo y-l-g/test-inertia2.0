@@ -16,6 +16,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.KEY }}
+          envs: DOT_ENV
           script: |
             if [ ! -d "test.yleg.ovh" ]; then
               git clone git@github.com:y-l-g/test-inertia2.0.git test.yleg.ovh || exit 1
