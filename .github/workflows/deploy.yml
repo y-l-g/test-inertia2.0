@@ -26,23 +26,20 @@ jobs:
             git pull || exit 1
             echo "$DOT_ENV" > .env
             docker compose down || exit 1
-            docker compose up -d --wait --build || exit 1
+            docker compose up -d --build
 
-            sleep 60
-            echo "État des conteneurs :"
+            echo "État initial des conteneurs :"
             docker compose ps
 
             echo "Logs du proxy :"
-            docker compose logs proxy
+            docker compose logs proxy || true
 
             echo "Logs de tous les conteneurs :"
-            docker compose logs
+            docker compose logs || true
 
-            echo "Configuration du conteneur proxy :"
-            docker compose config | grep -A 10 proxy:
-
+            # Vérification finale
             if ! docker compose ps | grep proxy | grep -q "healthy"; then
-              echo "Le proxy n'est pas healthy. Sortie..."
+              echo "Le proxy n'est pas healthy"
               exit 1
             fi
 

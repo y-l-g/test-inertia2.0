@@ -126,10 +126,10 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
       start_period: 20s
-    depends_on:
-      ssr:
-        condition: service_healthy
-        restart: true
+    # depends_on:
+    #   ssr:
+    #     condition: service_healthy
+    #     restart: true
   ##################################################
   # VOLUMES
   ##################################################
