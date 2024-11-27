@@ -67,7 +67,7 @@ jobs:
                 }
 
                 # Lancer les migrations
-                if docker compose exec -T app "cd /app && php artisan migrate --force"; then
+                if docker compose exec -T app sh -c "php artisan migrate --force"; then
                   echo "Migrations réussies. Déploiement terminé."
                   cd ..
                   rm -rf "test.yleg.ovh.backup"
