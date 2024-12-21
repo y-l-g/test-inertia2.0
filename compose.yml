@@ -6,7 +6,7 @@ services:
     image: "mysql:8.0"
     restart: always
     volumes:
-      - laravel_app_mysql-data:/var/lib/mysql
+      - laravel_app_mysql_data:/var/lib/mysql
     environment:
       MYSQL_DATABASE_FILE: /run/secrets/laravel_app_DB_DATABASE
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/laravel_app_DB_PASSWORD
@@ -136,8 +136,8 @@ volumes:
   laravel_app_caddy_data:
   laravel_app_caddy_config:
   ##################################################
-  laravel_app_mysql-data:
-  laravel_app_redis-data:
+  laravel_app_mysql_data:
+  laravel_app_redis_data:
   ##################################################
   laravel_app_cron_data:
   laravel_app_cron_config:
