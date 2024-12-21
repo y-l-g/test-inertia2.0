@@ -75,7 +75,7 @@ services:
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
       - laravel_app_APP_KEY
-    entrypoint: start-container
+    # entrypoint: start-container
     networks:
       - laravel_app
       - caddy_network
@@ -101,7 +101,7 @@ services:
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
       - laravel_app_APP_KEY
-    entrypoint: start-container
+    # entrypoint: start-container
     networks:
       - laravel_app
   #################################################
@@ -126,7 +126,7 @@ services:
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
       - laravel_app_APP_KEY
-    entrypoint: start-container
+    # entrypoint: start-container
     networks:
       - laravel_app
   ##################################################
