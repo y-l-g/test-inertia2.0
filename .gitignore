@@ -7,3 +7,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+
+**/caddy
+frankenphp
+frankenphp-worker.php
