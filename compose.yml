@@ -74,7 +74,6 @@ services:
       - laravel_app_DB_USERNAME
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
-      - laravel_app_APP_DOMAIN
       - laravel_app_APP_KEY
     entrypoint: start-container
     networks:
@@ -100,7 +99,6 @@ services:
       - laravel_app_DB_USERNAME
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
-      - laravel_app_APP_DOMAIN
       - laravel_app_APP_KEY
     entrypoint: start-container
     networks:
@@ -126,7 +124,6 @@ services:
       - laravel_app_DB_USERNAME
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
-      - laravel_app_APP_DOMAIN
       - laravel_app_APP_KEY
     entrypoint: start-container
     networks:
@@ -156,8 +153,6 @@ secrets:
   laravel_app_REDIS_PASSWORD:
     external: true
   laravel_app_APP_URL:
-    external: true
-  laravel_app_APP_DOMAIN:
     external: true
   laravel_app_APP_KEY:
     external: true
