@@ -6,15 +6,21 @@ services:
     image: "mysql:8.0"
     restart: always
     volumes:
-      - mysql-data:/var/lib/mysql
+      - laravel_app_mysql-data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_DATABASE_FILE: /run/secrets/laravel_app_DB_DATABASE
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/laravel_app_DB_PASSWORD
+      MYSQL_PASSWORD_FILE: /run/secrets/laravel_app_DB_PASSWORD
+      MYSQL_USER_FILE: /run/secrets/laravel_app_DB_USERNAME
+    secrets:
+      - laravel_app_DB_DATABASE
+      - laravel_app_DB_PASSWORD
+      - laravel_app_DB_USERNAME
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       start_period: 20s
+    networks:
+      - laravel_app
   ##################################################
   # REDIS
   ##################################################
@@ -22,14 +28,17 @@ services:
     image: "redis:7.4"
     restart: always
     volumes:
-      - "redis-data:/data"
+      - "laravel_app_redis-data:/data"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       start_period: 20s
-    depends_on:
-      db:
-        condition: service_healthy
-        restart: true
+    environment:
+      - REDIS_PASSWORD_FILE=/run/secrets/laravel_app_REDIS_PASSWORD
+    secrets:
+      - laravel_app_REDIS_PASSWORD
+    command: sh -c 'redis-server --appendonly yes --requirepass $$(cat /run/secrets/laravel_app_REDIS_PASSWORD | tr -d " \t\n\r")'
+    networks:
+      - laravel_app
   # ##################################################
   # # PHPMYADMIN
   # ##################################################
@@ -48,106 +57,111 @@ services:
   # OCTANE:FRANKENPHP
   #################################################
   app:
-    build:
-      target: common
+    image: 127.0.0.1:5000/laravel_app
     restart: always
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - laravel_app_caddy_data:/data
+      - laravel_app_caddy_config:/config
     healthcheck:
       test: ["CMD", "php", "artisan", "octane:status"]
       start_period: 20s
-    command: >
-      sh -c "
-        # php artisan migrate --isolated --force &&
-        php artisan octane:frankenphp --host=0.0.0.0
-      "
-    depends_on:
-      redis:
-        condition: service_healthy
-        restart: true
+    command: sh -c 'php artisan octane:frankenphp --host=0.0.0.0'
+    environment:
+      - APP_NAME=laravel_app
+    secrets:
+      - laravel_app_DB_DATABASE
+      - laravel_app_DB_PASSWORD
+      - laravel_app_DB_USERNAME
+      - laravel_app_REDIS_PASSWORD
+      - laravel_app_APP_URL
+      - laravel_app_APP_DOMAIN
+      - laravel_app_APP_KEY
+    entrypoint: start-container
+    networks:
+      - laravel_app
   #################################################
   # SSR
   #################################################
   ssr:
-    build:
-      target: common
+    image: 127.0.0.1:5000/laravel_app
     restart: always
     volumes:
-      - ssr_data:/data
-      - ssr_config:/config
+      - laravel_app_ssr_data:/data
+      - laravel_app_ssr_config:/config
     command: ["php", "artisan", "inertia:start-ssr"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:13714/render"]
       start_period: 20s
-    expose:
-      - "13714"
-    depends_on:
-      app:
-        condition: service_healthy
-        restart: true
+    environment:
+      - APP_NAME=laravel_app
+    secrets:
+      - laravel_app_DB_DATABASE
+      - laravel_app_DB_PASSWORD
+      - laravel_app_DB_USERNAME
+      - laravel_app_REDIS_PASSWORD
+      - laravel_app_APP_URL
+      - laravel_app_APP_DOMAIN
+      - laravel_app_APP_KEY
+    entrypoint: start-container
+    networks:
+      - laravel_app
   #################################################
   # CRON
   #################################################
   cron:
-    build:
-      target: common
+    image: 127.0.0.1:5000/laravel_app
     restart: always
     volumes:
-      - cron_data:/data
-      - cron_config:/config
+      - laravel_app_cron_data:/data
+      - laravel_app_cron_config:/config
     command: ["cron", "-f"]
     healthcheck:
       test: ["CMD", "pgrep", "-f", "cron"]
       start_period: 20s
-    depends_on:
-      app:
-        condition: service_healthy
-        restart: true
-  ##################################################
-  # PROXY
-  ##################################################
-  proxy:
-    build:
-      target: caddy-reverse-proxy
-    restart: always
-    cap_add:
-      - NET_ADMIN
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - proxy_data:/data
-      - proxy_config:/config
     environment:
-      APP_DOMAIN: ${APP_DOMAIN}
-      PMA_APP_DOMAIN: ${PMA_APP_DOMAIN}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2019/metrics"]
-      start_period: 20s
-    # depends_on:
-    #   ssr:
-    #     condition: service_healthy
-    #     restart: true
+      - APP_NAME=laravel_app
+    secrets:
+      - laravel_app_DB_DATABASE
+      - laravel_app_DB_PASSWORD
+      - laravel_app_DB_USERNAME
+      - laravel_app_REDIS_PASSWORD
+      - laravel_app_APP_URL
+      - laravel_app_APP_DOMAIN
+      - laravel_app_APP_KEY
+    entrypoint: start-container
+    networks:
+      - laravel_app
   ##################################################
   # VOLUMES
   ##################################################
 volumes:
-  caddy_data:
-  caddy_config:
+  laravel_app_caddy_data:
+  laravel_app_caddy_config:
   ##################################################
-  proxy_data:
-  proxy_config:
+  laravel_app_mysql-data:
+  laravel_app_redis-data:
   ##################################################
-  horizon_data:
-  horizon_config:
+  laravel_app_cron_data:
+  laravel_app_cron_config:
   ##################################################
-  mysql-data:
-  redis-data:
-  ##################################################
-  cron_data:
-  cron_config:
-  ##################################################
-  ssr_data:
-  ssr_config:
+  laravel_app_ssr_data:
+  laravel_app_ssr_config:
+secrets:
+  laravel_app_DB_DATABASE:
+    external: true
+  laravel_app_DB_PASSWORD:
+    external: true
+  laravel_app_DB_USERNAME:
+    external: true
+  laravel_app_REDIS_PASSWORD:
+    external: true
+  laravel_app_APP_URL:
+    external: true
+  laravel_app_APP_DOMAIN:
+    external: true
+  laravel_app_APP_KEY:
+    external: true
+networks:
+  laravel_app:
+    driver: overlay
+    attachable: true

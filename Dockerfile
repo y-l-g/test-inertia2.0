@@ -2,7 +2,7 @@
 # FrankenPHP
 ###########################################
 
-FROM dunglas/frankenphp:1.3.1 AS common
+FROM dunglas/frankenphp:1.3
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
@@ -13,9 +13,7 @@ RUN set -eux; \
     cron \
     file \
     gettext \
-    git \
     procps \
-    nano \
     nodejs \
     npm \
     && apt-get clean
@@ -23,17 +21,16 @@ RUN set -eux; \
 RUN set -eux; \
     install-php-extensions \
     @composer \
-    gd \
-    imap \
-    soap \
-    bcmath \
-    ldap \
+    # gd \
+    # imap \
+    # soap \
+    # bcmath \
+    # ldap \
     pcntl \
-    igbinary \
-    msgpack \
-    pcov \
+    # igbinary \
+    # msgpack \
+    # pcov \
     pdo_mysql \
-    memcached \
     redis \
     opcache \
     intl \
@@ -73,6 +70,8 @@ COPY --link package.json package-lock.json ./
 
 RUN npm ci
 
+COPY --link --chmod=755 start-container.sh /usr/local/bin/start-container
+
 COPY --link . .
 
 RUN npm run build
@@ -84,23 +83,8 @@ RUN composer dump-autoload \
     --no-ansi \
     && composer clear-cache
 
-RUN php artisan storage:link
-RUN php artisan optimize
-RUN rm .env
-
 #####################################################
 
 RUN echo "* * * * * root /usr/local/bin/php /app/artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/schedule
 RUN chmod 0644 /etc/cron.d/schedule
-
-#####################################################
-# CADDY-REVERSE-PROXY
-#####################################################
-
-FROM caddy:2.8 AS caddy-reverse-proxy
-
-COPY Caddyfile /etc/caddy/Caddyfile
-
-RUN apk add --update curl && \
-    rm -rf /var/cache/apk/*
 
