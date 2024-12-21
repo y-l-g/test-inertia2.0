@@ -28,7 +28,7 @@ services:
     image: "redis:7.4"
     restart: always
     volumes:
-      - "laravel_app_redis-data:/data"
+      - "laravel_app_redis_data:/data"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       start_period: 20s
