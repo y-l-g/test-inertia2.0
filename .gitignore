@@ -7,4 +7,3 @@
 /storage/*.key
 /storage/pail
 /vendor
-.env
