@@ -161,5 +161,3 @@ networks:
   laravel_app:
     driver: overlay
     attachable: true
-  caddy-network:
-    external: true
