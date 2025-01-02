@@ -1,59 +1,5 @@
 services:
   #################################################
-  # DB (MySQL)
-  #################################################
-  db:
-    image: "mysql:8.0"
-    restart: always
-    volumes:
-      - laravel_app_mysql_data:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE_FILE: /run/secrets/laravel_app_DB_DATABASE
-      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/laravel_app_DB_PASSWORD
-      MYSQL_PASSWORD_FILE: /run/secrets/laravel_app_DB_PASSWORD
-      MYSQL_USER_FILE: /run/secrets/laravel_app_DB_USERNAME
-    secrets:
-      - laravel_app_DB_DATABASE
-      - laravel_app_DB_PASSWORD
-      - laravel_app_DB_USERNAME
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      start_period: 20s
-    networks:
-      - laravel_app
-  ##################################################
-  # REDIS
-  ##################################################
-  redis:
-    image: "redis:7.4"
-    restart: always
-    volumes:
-      - "laravel_app_redis_data:/data"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      start_period: 20s
-    environment:
-      - REDIS_PASSWORD_FILE=/run/secrets/laravel_app_REDIS_PASSWORD
-    secrets:
-      - laravel_app_REDIS_PASSWORD
-    command: sh -c 'redis-server --appendonly yes --requirepass $$(cat /run/secrets/laravel_app_REDIS_PASSWORD | tr -d " \t\n\r")'
-    networks:
-      - laravel_app
-  # ##################################################
-  # # PHPMYADMIN
-  # ##################################################
-  # phpmyadmin:
-  #   image: phpmyadmin:latest
-  #   restart: always
-  #   environment:
-  #     PMA_HOST: db
-  #     PMA_USER: ${DB_USERNAME}
-  #     PMA_PASSWORD: ${DB_PASSWORD}
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #       restart: true
-  #################################################
   # OCTANE:FRANKENPHP
   #################################################
   app:
@@ -69,16 +15,13 @@ services:
     environment:
       - APP_NAME=laravel_app
     secrets:
-      - laravel_app_DB_DATABASE
       - laravel_app_DB_PASSWORD
-      - laravel_app_DB_USERNAME
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
       - laravel_app_APP_KEY
     entrypoint: start-container
     networks:
       - laravel_app
-      - caddy_network
   #################################################
   # SSR
   #################################################
@@ -95,13 +38,10 @@ services:
     environment:
       - APP_NAME=laravel_app
     secrets:
-      - laravel_app_DB_DATABASE
       - laravel_app_DB_PASSWORD
-      - laravel_app_DB_USERNAME
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
       - laravel_app_APP_KEY
-    entrypoint: start-container
     networks:
       - laravel_app
   #################################################
@@ -120,9 +60,7 @@ services:
     environment:
       - APP_NAME=laravel_app
     secrets:
-      - laravel_app_DB_DATABASE
       - laravel_app_DB_PASSWORD
-      - laravel_app_DB_USERNAME
       - laravel_app_REDIS_PASSWORD
       - laravel_app_APP_URL
       - laravel_app_APP_KEY
@@ -136,20 +74,13 @@ volumes:
   laravel_app_caddy_data:
   laravel_app_caddy_config:
   ##################################################
-  laravel_app_mysql_data:
-  laravel_app_redis_data:
-  ##################################################
   laravel_app_cron_data:
   laravel_app_cron_config:
   ##################################################
   laravel_app_ssr_data:
   laravel_app_ssr_config:
 secrets:
-  laravel_app_DB_DATABASE:
-    external: true
   laravel_app_DB_PASSWORD:
-    external: true
-  laravel_app_DB_USERNAME:
     external: true
   laravel_app_REDIS_PASSWORD:
     external: true
@@ -159,7 +90,4 @@ secrets:
     external: true
 networks:
   laravel_app:
-    driver: overlay
-    attachable: true
-  caddy_network:
     external: true
