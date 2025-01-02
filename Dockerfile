@@ -21,15 +21,7 @@ RUN set -eux; \
 RUN set -eux; \
     install-php-extensions \
     @composer \
-    # gd \
-    # imap \
-    # soap \
-    # bcmath \
-    # ldap \
     pcntl \
-    # igbinary \
-    # msgpack \
-    # pcov \
     pdo_mysql \
     redis \
     opcache \
